@@ -10,7 +10,7 @@
 
   (:gen-class))
 
-(def cars {:1  {:id 1
+(def cars {:0  {:id 0
 
                 :name "Ford"
 
@@ -28,7 +28,7 @@
 
                 :engine "V8"}
 
-           :2 {:id 2
+           :1 {:id 1
 
                :name "Audi"
 
@@ -46,7 +46,7 @@
 
                :engine "V8"}
 
-           :3 {:id 3
+           :2 {:id 2
 
                :name "BMW"
 
@@ -64,7 +64,7 @@
 
                :engine "V8"}
 
-           :4 {:id 4
+           :3 {:id 3
 
                :name "Mercedes"
 
@@ -82,7 +82,7 @@
 
                :engine "V8"}
 
-           :5 {:id 5
+           :4 {:id 4
 
                :name "Toyota"
 
@@ -100,7 +100,7 @@
 
                :engine "V8"}
 
-           :6 {:id 6
+           :5 {:id 5
 
                :name "Honda"
 
@@ -118,7 +118,7 @@
 
                :engine "V8"}
 
-           :7 {:id 7
+           :6 {:id 6
 
                :name "Nissan"
 
@@ -136,7 +136,7 @@
 
                :engine "V8"}
 
-           :8 {:id 8
+           :7 {:id 7
 
                :name "Opel"
 
@@ -176,60 +176,19 @@
 
    :body cars})
 
-(defn handle-add-car [{car :body-params}]
+(defn handle-add-car [request]
 
-  (let [id (str (java.util.UUID/randomUUID))] ;; Creates a new UUID
-
-
-    {:status 200
-
-     :body "id"}))
-
-
-(defn handle-edit-car [_]
-
-
-
-
-
-
+  (clojure.pprint/pprint request)
 
   {:status 200
 
-
-
-
-
-
-
-   :body "edit-car"})
-
-
-
-
-
-
+   :body "(assoc id car cars)"})
 
 (defn handle-delete-car [_]
 
-
-
-
-
-
-
   {:status 200
 
-
-
-
-
-
-
    :body "delete-car"})
-
-
-
 
 (def app
 
@@ -243,11 +202,9 @@
 
      ["cars" {:get handle-query-all-cars}]
 
-     ["car" {:post handle-add-car}]
-     ["car" {:put handle-edit-car}]
-     ["car" {:delete handle-delete-car}]
-     
-     ]
+     ["car-add" {:post handle-add-car}]
+
+     ["car-remove" {:delete handle-delete-car}]]
 
     {:data {:muuntaja m/instance
 
