@@ -1,10 +1,12 @@
-(ns api-rest.core
+(ns api-rest.routes
 
-  (:require [compojure.core :refer :all]
+  (:use compojure.core)
 
-            [compojure.route :as route])
+  (:require [compojure.handler :as handler]
 
-  (:gen-class))
+            [compojure.route]
+
+            [ring.middleware.json :as middleware]))
 
 (def cars {:0  {:id 0
 
@@ -150,17 +152,40 @@
 
                :engine "V8"}})
 
+(defn handle-query-one-car [id]
 
-(defroutes app
-   (GET "/cars" [] (clojure/data/json cars) )
-   (GET "/car/:id" [{{id :id} :params}] (clojure/data/json cars) )
-  (route/not-found {:message "Not found" :status 404} )
-)
+  (let [car ((keyword id) cars nil)]
 
-(ring-jetty/run-jetty app {:port 3000
+    (if (not (nil? car))
 
-                           :join? false})
+      {:status 200
 
-(defn -main
+       :body car}
 
-  [& args])
+      {:status 404
+
+       :body {:error "Car not found"}})))
+
+(defn handle-query-all-cars []
+
+  {:status 200
+
+   :body cars})
+
+(defroutes router
+
+  (GET "/" [] "API Testing")
+
+  (GET "/cars" [] (handle-query-all-cars))
+
+  (GET "/cars/:id" [id] (handle-query-one-car id))
+
+  (compojure.route/not-found "Not Found"))
+
+(def app
+
+  (-> (handler/api router)
+
+      (middleware/wrap-json-body)
+
+      (middleware/wrap-json-response)))
