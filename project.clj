@@ -7,7 +7,8 @@
                  [ring/ring-core "1.9.4"]
                  [ring/ring-jetty-adapter "1.9.4"]
                  [metosin/reitit "0.5.15"]
-                 [metosin/muuntaja "0.6.8"]]
+                 [metosin/muuntaja "0.6.8"]
+                 [ring/ring-json "0.5.1"]]
 
   :main ^:skip-aot api-rest.core
   :target-path "target/%s"

@@ -176,19 +176,13 @@
 
    :body cars})
 
-(defn handle-add-car [request]
+(defn handle-add-car [{car :body}]
 
-  (clojure.pprint/pprint request)
+  (clojure.pprint/pprint car)
 
   {:status 200
 
    :body "(assoc id car cars)"})
-
-(defn handle-delete-car [_]
-
-  {:status 200
-
-   :body "delete-car"})
 
 (def app
 
@@ -202,9 +196,7 @@
 
      ["cars" {:get handle-query-all-cars}]
 
-     ["car-add" {:post handle-add-car}]
-
-     ["car-remove" {:delete handle-delete-car}]]
+     ["car-add" {:post handle-add-car}]]
 
     {:data {:muuntaja m/instance
 
