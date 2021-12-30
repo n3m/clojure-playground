@@ -1,12 +1,8 @@
 (ns api-rest.core
 
-  (:require [ring.adapter.jetty :as ring-jetty]
+  (:require [compojure.core :refer :all]
 
-            [muuntaja.core :as m]
-
-            [reitit.ring :as ring]
-
-            [reitit.ring.middleware.muuntaja :as muuntaja])
+            [compojure.route :as route])
 
   (:gen-class))
 
@@ -154,53 +150,12 @@
 
                :engine "V8"}})
 
-(defn handle-query-one-car [{requestParams :path-params}]
 
-  (def paramId (get requestParams :id))
-
-  (let [car ((keyword paramId) cars nil)]
-
-    (if (not (nil? car))
-
-      {:status 200
-
-       :body car}
-
-      {:status 404
-
-       :body {:error "Car not found"}})))
-
-(defn handle-query-all-cars [_]
-
-  {:status 200
-
-   :body cars})
-
-(defn handle-add-car [{car :body}]
-
-  (clojure.pprint/pprint car)
-
-  {:status 200
-
-   :body "(assoc id car cars)"})
-
-(def app
-
-  (ring/ring-handler
-
-   (ring/router
-
-    ["/"
-
-     ["car/:id" {:get handle-query-one-car}]
-
-     ["cars" {:get handle-query-all-cars}]
-
-     ["car-add" {:post handle-add-car}]]
-
-    {:data {:muuntaja m/instance
-
-            :middleware [muuntaja/format-middleware]}})))
+(defroutes app
+   (GET "/cars" [] (clojure/data/json cars) )
+   (GET "/car/:id" [{{id :id} :params}] (clojure/data/json cars) )
+  (route/not-found {:message "Not found" :status 404} )
+)
 
 (ring-jetty/run-jetty app {:port 3000
 
