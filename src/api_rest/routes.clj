@@ -3,7 +3,7 @@
   (:use compojure.core)
 
   (:require [compojure.handler :as handler]
-            
+
             [clojure.pprint :as pprint]
 
             [compojure.route]
@@ -13,40 +13,39 @@
 
 (def cars (atom {:0  {:id 0
 
-                :name "Ford"
+                      :name "Ford"
 
-                :price "100000"
+                      :price "100000"
 
-                :year "2000"
+                      :year "2000"
 
-                :color "red"
+                      :color "red"
 
-                :type "car"
+                      :type "car"
 
-                :brand "Ford"
+                      :brand "Ford"
 
-                :model "Mustang"
+                      :model "Mustang"
 
-                :engine "V8"}
+                      :engine "V8"}
 
-           :1 {:id 1
+                 :1 {:id 1
 
-               :name "Audi"
+                     :name "Audi"
 
-               :price "200000"
+                     :price "200000"
 
-               :year "2010"
+                     :year "2010"
 
-               :color "blue"
+                     :color "blue"
 
-               :type "car"
+                     :type "car"
 
-               :brand "Audi"
+                     :brand "Audi"
 
-               :model "A4"
+                     :model "A4"
 
-               :engine "V8"}
-           }))
+                     :engine "V8"}}))
 
 (defn handle-query-one-car [id]
 
@@ -73,15 +72,50 @@
   (let [id (count @cars)]
 
     (let [document (assoc jsonBody "id" id)]
-      
+
       (dosync (swap! cars assoc (keyword (str id)) document))
-    
+
       {:status 200
+       :body document})))
 
-       :body document})
-    )
+(defn handle-edit-car [jsonBody]
 
-  )
+  (pprint/pprint "EDIT MODE")
+
+  (def carID (get jsonBody "id"))
+
+  (if (not (nil? carID))
+
+    (do
+      (try
+        (let [car ((keyword (str carID)) @cars nil)]
+
+          (if (not (nil? car))
+
+            (do
+              (pprint/pprint "car found")
+
+
+              (dosync (swap! cars assoc (keyword (str carID)) jsonBody))
+
+              {:status 200
+               :body {:success false
+                      :message (str "Car with ID '" (str carID) "' not found")
+                      :value jsonBody}})
+
+
+            (do
+              (pprint/pprint "car not found")
+
+              {:status 200
+               :body {:success false
+                      :message (str "Car with ID '" (str carID) "' not found")}})))
+
+        (catch Exception e (println (str "caught exception: " (.toString e))))))
+
+    {:status 404
+     :body {:error "ID of car not found"}}))
+
 
 (defroutes router
 
@@ -92,6 +126,8 @@
   (GET "/cars/:id" [id] (handle-query-one-car id))
 
   (POST "/cars" {body :body} (handle-add-car body))
+
+  (PUT "/cars" {body :body} (handle-edit-car body))
 
   (compojure.route/not-found "Not Found"))
 
