@@ -80,8 +80,6 @@
 
 (defn handle-edit-car [jsonBody]
 
-  (pprint/pprint "EDIT MODE")
-
   (def carID (get jsonBody "id"))
 
   (if (not (nil? carID))
@@ -93,8 +91,6 @@
           (if (not (nil? car))
 
             (do
-              (pprint/pprint "car found")
-
 
               (dosync (swap! cars assoc (keyword (str carID)) jsonBody))
 
@@ -105,7 +101,6 @@
 
 
             (do
-              (pprint/pprint "car not found")
 
               {:status 200
                :body {:success false
@@ -116,6 +111,23 @@
     {:status 404
      :body {:error "ID of car not found"}}))
 
+(defn handle-delete-car [id]
+
+  (let [car ((keyword id) @cars nil)]
+
+    (if (not (nil? car))
+
+      (do
+
+        (dosync (swap! cars dissoc (keyword (str id))))
+
+        {:status 200
+         :body {:success true
+                :message (str "Car with ID '" (str id) "' deleted")}})
+
+      {:status 404
+
+       :body {:error "Car not found"}})))
 
 (defroutes router
 
@@ -128,6 +140,8 @@
   (POST "/cars" {body :body} (handle-add-car body))
 
   (PUT "/cars" {body :body} (handle-edit-car body))
+
+  (DELETE "/cars/:id" [id] (handle-delete-car id))
 
   (compojure.route/not-found "Not Found"))
 
